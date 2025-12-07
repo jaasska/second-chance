@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Войти в мир этого послания</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Bad+Script&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --accent: #a47148;
+      --text: #3b2f1c;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background:
+        url('https://www.transparenttextures.com/patterns/aged-paper.png'),
+        linear-gradient(120deg, #f3e5ab, #e9d49a, #d9b87a);
+      background-size: 600px, 400% 400%;
+      animation: gradientShift 25s ease infinite;
+      font-family: 'Marck Script', 'Bad Script', 'Caveat', cursive;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Canvas (3-variant — real snow) */
+    #snow-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #password-box,
+    #poem,
+    #play-btn {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== PAROL OYNASI UCHUN ESKI ROMANTIK MAKTUB FONI ===== */
+    #password-box {
+      position: absolute;
+      background: url('password-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 34px rgba(0,0,0,0.25);
+      text-align: center;
+      font-family: 'Bad Script', cursive;
+      width: min(430px, 92vw);
+      color: #3b2f1c;
+      border: 2px solid rgba(120,80,40,0.45);
+    }
+
+    #password-box input {
+      padding: 10px 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 8px;
+      width: 70%;
+      text-align: center;
+      font-family: 'Bad Script', cursive;
+      background: rgba(255,255,255,0.75);
+    }
+
+    #password-box button {
+      margin-top: 12px;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-family: 'Bad Script', cursive;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    #error { height: 22px; margin-top:10px; color:#c0392b; font-size:15px }
+
+    /* ===== SHE’R CHIQADIGAN QISM – ESKI MAKTUB FONI ===== */
+    #poem {
+      margin-top: 10px;
+      display: none;
+      text-align: center;
+      line-height: 1.6;
+      z-index: 2;
+      max-width: 900px;
+      padding: 40px 20px;
+      border-radius: 18px;
+      background: url('poem-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      border: 2px solid rgba(100,70,40,0.35);
+      font-size: clamp(1.2rem, 3vw, 1.9rem);
+      color: #3b2f1c;
+      font-family: 'Marck Script', cursive;
+      white-space: pre-wrap;
+    }
+
+    .line {
+      opacity: 1; /* we control appearance via characters, not line fade */
+      display: block;
+      margin: 6px 0;
+      text-align: center;
+      font-size: inherit;
+    }
+
+    .char {
+      opacity: 0;
+      display: inline-block;
+      transform: translateY(6px);
+      transition: opacity 120ms linear, transform 120ms ease;
+      will-change: opacity, transform;
+    }
+    .char.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #play-btn {
+      margin-top: 20px;
+      padding: 12px 28px;
+      font-size: 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-family: 'Bad Script', cursive;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, background 0.3s ease;
+      display: none;
+    }
+    #play-btn:hover { transform: scale(1.05); background: #8c5a32; }
+
+    @media (max-width:520px){
+      #password-box input{ width: 82%; font-size:15px }
+      #password-box { padding:16px }
+      #play-btn { padding:10px 18px; font-size:16px }
+      #poem { padding: 28px 12px; font-size: 1.1rem }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas for realistic snow -->
+  <canvas id="snow-canvas"></canvas>
+
+  <!-- Parol oynasi -->
+  <div id="password-box" role="dialog" aria-labelledby="pw-title">
+    <div id="pw-title" style="font-size:20px; margin-bottom:6px;">Маленькие послания от большого сердца!</div>
+    <input type="text" id="pass-input" placeholder="Никнейм отправителя" autocomplete="off">
+    <div>
+      <button onclick="checkPassword()">Открыть письмо, где ты — главная</button>
+    </div>
+    <div id="error" aria-live="polite"></div>
+  </div>
+
+  <div id="poem" aria-hidden="true"></div>
+
+  <audio id="bg-music" loop>
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+  <button id="play-btn" onclick="startMusic()">С музыкой — ещё теплее ❄</button>
+
+  <script>
+    const SECRET = "jaasska";
+
+    function checkPassword() {
+      const inp = document.getElementById("pass-input").value.trim().toLowerCase();
+      const err = document.getElementById("error");
+      err.textContent = '';
+      if (!inp) { err.textContent = 'Введите никнейм отправителя'; return; }
+      if (inp === SECRET) {
+        document.getElementById("password-box").style.display = "none";
+        showContent();
+      } else {
+        err.textContent = "Noto‘g‘ri kod ❌";
+      }
+    }
+
+    /* ——— Typewriter-like per-character reveal ——— */
+    const lines = [
+      "Сентябрь стучится дождём по стеклу,",
+      "Прощай, тёплое лето, что было в плену.",
+      "Ты — как ответ на немой календарь,",
+      "Твой день сияет, как осени старт.",
+      "",
+      "Не заметишь, как мгновения кружат в пути,",
+      "Но твоё — невозможно забыть.",
+      "Словно тайна, что дарит душе оберег,",
+      "Ты — начало историй, что пишем навек."
+    ];
+
+    function showContent() {
+      const poemEl = document.getElementById("poem");
+      poemEl.style.display = "block";
+      poemEl.innerHTML = '';
+
+      // For each line, create a line container and reveal characters sequentially.
+      let totalDelay = 0;
+      const pauseBetweenLines = 600; // ms pause after each line completes
+
+      function createLineElement(text) {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'line';
+        poemEl.appendChild(lineDiv);
+        return lineDiv;
+      }
+
+      // returns promise that resolves when a line finishes typing
+      function typeLine(lineDiv, text, startDelay=0) {
+        return new Promise((resolve) => {
+          if (text.trim() === '') {
+            // empty line: add blank line, small pause
+            setTimeout(() => { resolve(); }, startDelay + 150);
+            return;
+          }
+          // split into characters (keep spaces)
+          const chars = Array.from(text);
+          chars.forEach((ch) => {
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = ch;
+            lineDiv.appendChild(span);
+          });
+
+          // reveal chars one by one
+          const revealSpeed = 90; // ms between characters (adjust for faster/slower)
+          let idx = 0;
+          setTimeout(function step() {
+            const spans = lineDiv.querySelectorAll('.char');
+            if (idx < spans.length) {
+              spans[idx].classList.add('visible');
+              idx++;
+              setTimeout(step, revealSpeed + (Math.random()*20 - 10)); // small jitter
+            } else {
+              // finished line
+              setTimeout(resolve, 0);
+            }
+          }, startDelay);
+        });
+      }
+
+      // sequentially type all lines
+      (async function runAll() {
+        for (let i = 0; i < lines.length; i++) {
+          const lineText = lines[i];
+          const lineDiv = createLineElement(lineText);
+          await typeLine(lineDiv, lineText, totalDelay);
+          // small pause after line
+          await new Promise(r => setTimeout(r, pauseBetweenLines));
+        }
+        // after all lines, show play button
+        document.getElementById('play-btn').style.display = 'inline-block';
+      })();
+    }
+
+    function startMusic() {
+      const music = document.getElementById("bg-music");
+      music.play().catch(()=>{/* ignore */});
+      document.getElementById("play-btn").style.display = 'none';
+    }
+
+    /* ===== REALISTIC CANVAS SNOW (3-VARIANT) ===== */
+    (function(){
+      const canvas = document.getElementById('snow-canvas');
+      const ctx = canvas.getContext('2d');
+
+      let W = canvas.width = window.innerWidth;
+      let H = canvas.height = window.innerHeight;
+
+      const flakes = [];
+      const NUM = Math.round((W * H) / 40000);
+      const MAX = Math.max(80, Math.min(380, NUM));
+
+      function rand(min, max){ return Math.random()*(max-min)+min; }
+
+      class Flake {
+        constructor(){ this.reset(true); }
+        reset(initial=false){
+          this.x = rand(0, W);
+          this.y = initial ? rand(0, H) : rand(-H*0.2, -10);
+          this.r = rand(0.8, 3.5);
+          this.speed = rand(0.4, 1.8);
+          this.wind = rand(-0.6, 0.6);
+          this.opacity = rand(0.5, 1);
+          this.phase = rand(0, Math.PI*2);
+          this.angular = rand(-0.01, 0.01);
+        }
+        update(delta){
+          this.phase += this.angular * delta;
+          this.x += Math.sin(this.phase) * 0.6 + this.wind * delta * 0.6;
+          this.y += (this.speed * this.speed) * 0.6 * delta + 0.4;
+          if (this.y > H + 10) this.reset();
+          if (this.x > W + 20) this.x = -20;
+          if (this.x < -20) this.x = W + 20;
+        }
+        draw(){
+          const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r*3.5);
+          grd.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
+          grd.addColorStop(0.6, `rgba(255,255,255,${this.opacity*0.6})`);
+          grd.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = grd;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.r*3.2, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+
+      function initFlakes(){
+        flakes.length = 0;
+        for (let i=0;i<MAX;i++) flakes.push(new Flake());
+      }
+      initFlakes();
+
+      let last = performance.now();
+      function loop(now){
+        const delta = Math.min(1.5, (now - last) / 16.666);
+        last = now;
+        ctx.clearRect(0,0,W,H);
+        for (let f of flakes){
+          f.update(delta);
+          f.draw();
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      window.addEventListener('resize', () => {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        initFlakes();
+      });
+    })();
+  </script>
+</body>
+</html>
