@@ -199,7 +199,7 @@
         document.getElementById("password-box").style.display = "none";
         showContent();
       } else {
-        err.textContent = "Noto‘g‘ri kod ❌";
+        err.textContent = "Каждый заслуживает второго шанса.";
       }
     }
 
@@ -360,3 +360,4 @@
   </script>
 </body>
 </html>
+
