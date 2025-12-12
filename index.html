@@ -27,6 +27,8 @@
       background-size: 600px, 400% 400%;
       animation: gradientShift 25s ease infinite;
       font-family: 'Marck Script', 'Bad Script', 'Caveat', cursive;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
     @keyframes gradientShift {
@@ -94,30 +96,32 @@
 
     #error { height: 22px; margin-top:10px; color:#c0392b; font-size:15px }
 
-    /* POEM BOX — fon doim to‘liq ko‘rinadi */
+    /* POEM BOX — fon doim to‘liq ko‘rinadi va matnga bog‘lanmaydi */
     #poem {
       margin-top: 10px;
       display: none;
       opacity: 1 !important;
       text-align: left;
 
-      /* YANGI O‘ZGARTIRISHLAR */
+      /* === O'ZGARTIRILGAN QISMLAR === */
+      /* Fon qog'oz balandligini saqlab turadi; u matn cho'zilishiga bog'liq bo'lmaydi */
+      background: url('poem-bg.jpg') left top / auto 100% no-repeat;
+      padding-top: 120px;   /* matn 3-qator boshi joyidan boshlanishi uchun yuqoriroq bo'shliq */
+      padding-left: 220px;  /* matnni o'ngroqqa surish — gullardan chetdaroq */
+      padding-right: 30px;
+      padding-bottom: 40px;
       min-height: 86vh;
-      height: auto;
-      background: url('poem-bg.jpg') left top / 100% auto no-repeat;
-      padding-left: 120px;
-      /* ---- */
+      /* === END === */
 
-      line-height: 1.6;
+      line-height: 1.05;  /* qatorlar oralig'ini qisqartirdik */
       max-width: 900px;
       overflow-y: auto;
-      padding-top: 40px;
-      padding-bottom: 40px;
-      padding-right: 22px;
       border-radius: 18px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.25);
       border: 2px solid rgba(100,70,40,0.35);
-      font-size: clamp(1.2rem, 3vw, 1.9rem);
+
+      /* shrift o'lchamini teng yarmiga kamaytirdik */
+      font-size: clamp(0.6rem, 1.6vw, 0.95rem);
       color: #3b2f1c;
       font-family: 'Marck Script', cursive;
       white-space: pre-wrap;
@@ -129,14 +133,14 @@
     .line {
       opacity: 1;
       display: block;
-      margin: 6px 0;
+      margin: 2px 0; /* kichik bo'shliq, chiroyli ko'rinishi uchun */
     }
 
     /* LETTER-BY-LETTER ANIMATION */
     .char {
       opacity: 0;
       display: inline-block;
-      transform: translateY(6px);
+      transform: translateY(4px);
       transition: opacity 120ms linear, transform 120ms ease;
     }
     .char.visible {
@@ -147,7 +151,12 @@
     @media (max-width:520px){
       #password-box input{ width: 82%; font-size:15px }
       #password-box { padding:16px }
-      #poem { padding-left: 70px; font-size: 1.1rem }
+      /* Mobil uchun matn joylashuvi moslashuvi */
+      #poem {
+        padding-left: 120px;
+        padding-top: 90px;
+        font-size: clamp(0.9rem, 2.2vw, 1.05rem); /* mobilda ancha katta va o'qilishi qulay bo'lsin */
+      }
     }
   </style>
 </head>
@@ -184,6 +193,7 @@
     }
   }
 
+  /* MATN */
   const lines = [
     "Сентябрь стучится дождём по стеклу,",
     "Прощай, тёплое лето, что было в плену.",
@@ -201,13 +211,13 @@
     poemEl.style.display = "block";
     poemEl.style.opacity = "1";
 
+    /* Musiqa matn boshlanishi bilan avtomatik yoqiladi */
     const music = document.getElementById("bg-music");
     music.play().catch(()=>{});
 
     poemEl.innerHTML = '';
 
-    let totalDelay = 0;
-    const pauseBetweenLines = 600;
+    const pauseBetweenLines = 500; // biroz tezlashtirdim qatorlar orasida
 
     function createLineElement(text) {
       const div = document.createElement('div');
@@ -216,10 +226,10 @@
       return div;
     }
 
-    function typeLine(lineDiv, text, startDelay=0) {
+    function typeLine(lineDiv, text) {
       return new Promise((resolve) => {
         if (text.trim() === '') {
-          setTimeout(resolve, startDelay + 150);
+          setTimeout(resolve, 120);
           return;
         }
         const chars = Array.from(text);
@@ -230,25 +240,26 @@
           lineDiv.appendChild(span);
         });
         let idx = 0;
-        const revealSpeed = 90;
+        const revealSpeed = 60; // biroz tezroq, lekin hali ruchka effektida
 
-        setTimeout(function step() {
+        function step() {
           const spans = lineDiv.querySelectorAll('.char');
           if (idx < spans.length) {
             spans[idx].classList.add('visible');
             idx++;
-            setTimeout(step, revealSpeed + (Math.random()*20 - 10));
+            setTimeout(step, revealSpeed + (Math.random()*12 - 6));
           } else {
             resolve();
           }
-        }, startDelay);
+        }
+        setTimeout(step, 70);
       });
     }
 
     (async function runAll() {
       for (let i = 0; i < lines.length; i++) {
         const el = createLineElement(lines[i]);
-        await typeLine(el, lines[i], totalDelay);
+        await typeLine(el, lines[i]);
         await new Promise(r => setTimeout(r, pauseBetweenLines));
       }
     })();
