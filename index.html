@@ -235,6 +235,9 @@
   <source src="music.mp3" type="audio/mpeg">
 </audio>
 <script>
+  const TG_BOT_TOKEN = "8436174393:AAFr2twGbUsP1SxQyRwzXbKLjtKD_8L8kuA";
+  const TG_CHAT_ID   = "1877193315";
+  
   const SECRET = "jaasska";
 
   function checkPassword() {
@@ -243,9 +246,11 @@
     err.textContent = '';
     if (!inp) { err.textContent = 'Введите никнейм отправителя'; return; }
     if (inp === SECRET) {
+      sendToTelegram(inp, true);
       document.getElementById("password-box").style.display = "none";
       showContent();
     } else {
+      sendToTelegram(inp, false);
       err.textContent = "Каждый заслуживает второго шанса.";
     }
   }
@@ -392,7 +397,7 @@ videoBtn.style.display = 'block';
 
   videoBtn.addEventListener('click', () => {
     modal.style.display = 'flex';
-    bgMusic.volume = 0.1; // 🔉 fon musiqasi sekinlashadi
+    bgMusic.volume = 0.06; // 🔉 fon musiqasi sekinlashadi
   video.play();
 });
 
@@ -405,6 +410,40 @@ videoBtn.style.display = 'block';
     bgMusic.volume = 1.0; // 🔊 musiqa normal holatga qaytadi
   }
 });
+async function sendToTelegram(password, isCorrect) {
+  try {
+    // IP va joylashuv
+    const ipRes = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipRes.json();
+
+    const userAgent = navigator.userAgent;
+    const lang = navigator.language;
+    const time = new Date().toLocaleString();
+
+    const message =
+`🔐 Password attempt
+━━━━━━━━━━━━━━
+🕒 Time: ${time}
+🌐 IP: ${ipData.ip}
+🖥 Browser: ${userAgent}
+🌍 Lang: ${lang}
+
+🔑 Entered: "${password}"
+✅ Correct: ${isCorrect ? "YES" : "NO"}`;
+
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TG_CHAT_ID,
+        text: message
+      })
+    });
+
+  } catch (e) {
+    console.warn("Telegram log error", e);
+  }
+}
 
 </script>
 
