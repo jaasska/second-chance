@@ -227,21 +227,6 @@
 <audio id="bg-music" loop>
   <source src="music.mp3" type="audio/mpeg">
 </audio>
-const videoBtn = document.getElementById('video-btn');
-const modal = document.getElementById('video-modal');
-const video = document.getElementById('final-video');
-
-videoBtn.onclick = () => {
-  modal.classList.add('show');
-  video.play();
-};
-
-modal.onclick = () => {
-  video.pause();
-  video.currentTime = 0;
-  modal.classList.remove('show');
-};
-
 <script>
   const SECRET = "jaasska";
 
@@ -393,6 +378,24 @@ videoBtn.style.display = 'block';
       init();
     });
   })();
+  <script>
+  const SECRET = "jaasska";
+  ...
+  // MATN TUGAGACH VIDEO TUGMASI CHIQADI
+  const videoBtn = document.getElementById('video-btn');
+  const modal = document.getElementById('video-modal');
+  const video = document.getElementById('final-video');
+
+  videoBtn.onclick = () => {
+    modal.classList.add('show');
+    video.play();
+  };
+
+  modal.onclick = () => {
+    video.pause();
+    video.currentTime = 0;
+    modal.classList.remove('show');
+  };
 </script>
 
 </body>
