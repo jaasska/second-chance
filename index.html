@@ -158,6 +158,18 @@
         font-size: clamp(0.9rem, 2.2vw, 1.05rem); /* mobilda ancha katta va o'qilishi qulay bo'lsin */
       }
     }
+    #video-btn {
+  z-index: 3;
+  position: relative;
+}
+
+#video-modal {
+  display: none;
+}
+
+#video-modal.show {
+  display: flex;
+}
   </style>
 </head>
 <body>
@@ -172,11 +184,49 @@
 </div>
 
 <div id="poem"></div>
+<!-- VIDEO BUTTON (matn tugagach ko‘rinadi) -->
+<button id="video-btn" style="
+  display:none;
+  margin: 20px auto;
+  padding: 12px 26px;
+  font-size: 16px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  background: #a47148;
+  color: #fff;
+  font-family: 'Bad Script', cursive;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+">
+  🎬 Посмотреть видео
+</button>
+
+<!-- VIDEO MODAL -->
+<div id="video-modal" style="
+  display:none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 10;
+  justify-content: center;
+  align-items: center;
+">
+  <div style="
+    background:#000;
+    padding:10px;
+    border-radius:14px;
+    max-width:90vw;
+    max-height:90vh;
+  ">
+    <video id="final-video" controls style="width:100%; max-height:80vh;">
+      <source src="video.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
 
 <audio id="bg-music" loop>
   <source src="music.mp3" type="audio/mpeg">
 </audio>
-
 <script>
   const SECRET = "jaasska";
 
@@ -263,6 +313,9 @@
         await new Promise(r => setTimeout(r, pauseBetweenLines));
       }
     })();
+    // MATN TUGAGACH VIDEO TUGMASI CHIQADI
+const videoBtn = document.getElementById('video-btn');
+videoBtn.style.display = 'block';
   }
 
   /* SNOW EFFECT (unchanged) */
